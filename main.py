@@ -164,8 +164,9 @@ def combatSys(enemyIndex):
             time.sleep(0.5)
             print('UGH!')
             print('')
-            print(f'Seu HP atual: {meuHP} / {meuHPTotal} <-- \033[91m{danoInimigo}\033[0m DANO RECEBIDO')
-            print(f'HP do {enemyName}: {enemyHP} / {enemyHPTotal} <-- \033[91m{meuDano}\033[0m DANO DADO')
+            
+            print(f'Seu HP atual: {meuHP} / {meuHPTotal} <-- ' + fastColorInsert(danoInimigo, 'vermelho') + ' DANO RECEBIDO')
+            print(f'HP do {enemyName}: {enemyHP} / {enemyHPTotal} <-- ' + fastColorInsert(meuDano, 'vermelho') + ' DANO DADO')
             print('-=-=-')
             if meuHP <= 0:
                 main = False
@@ -340,35 +341,38 @@ def help():
     print('para zerar o jogo, você precisa comprar o LAMB!')
     print('se sua picareta quebrar, você pode comprar mais picaretas para mais durabilidade!')
     print('')
-      
-def changeLog():
-    print('')
-    print(('-=-'*5) + 'CHANGELOG:' + ('-=-'*5))
-    print('')
-    print('~ Remake do sistema de Crafting.')
-    print('+ Zumbi na pool de Caçar.')
-    print('+ Itens: Cosmetic e Elixir adicionados.')
-    print('+ fastColorInsert(texto, cor): Função automática de colorir texto no terminal')
-    print('+ Adição deste changelog :)')
-    print('')
 
 def menu():
     global dinheiro, meuHP, XP, XPTotal
-    print(('-=-' * 5) + 'LambCrawler 1.2' + ('-=-' * 5))
+    print(('-=-' * 5) + 'LambCrawler 1.2.2' + ('-=-' * 5))
     print(f'SEU DINHEIRO ATUAL: \033[93m{dinheiro}\033[0m')
     print(f'SEU HP ATUAL: \033[92m {meuHP}\033[0m')
     print(f'SEU XP ATUAL: \033[96m {XP} / {XPTotal}\033[0m \033[96m(Level {level})\033[0m')
-    print('Ações: (m)MINERAR, (c)CAÇAR, (s)SHOP, (h)HELP, (i)INV, (craft)CRAFT', '(cl)CHANGELOG')
+    print('Ações: (m)MINERAR, (c)CAÇAR, (s)SHOP, (h)HELP, (i)INV, (craft)CRAFT')
     print('-=-' * 15)
     escolha(input('AÇÃO: ').lower())
 
 def fastColorInsert(texto, cor):
-   if cor == 'amarelo':
-        print('\033[93m' + texto + '\033[0m')
-   elif cor == 'vermelho':
-        print('\033[91m' + texto + '\033[0m')
-   elif cor == 'verde':
-        print('\033[92m' + texto + '\033[0m')
+    texto = str(texto)
+    cor = cor.lower()
+    if cor == 'amarelo':
+        return '\033[93m' + texto + '\033[0m'
+    elif cor == 'vermelho':
+        return '\033[91m' + texto + '\033[0m'
+    elif cor == 'verde':
+        return '\033[92m' + texto + '\033[0m'
+    elif cor == 'azul':
+        return '\033[94m' + texto + '\033[0m'
+    elif cor == 'magenta' or cor == 'roxo':
+        return '\033[95m' + texto + '\033[0m'
+    elif cor == 'ciano':
+        return '\033[96m' + texto + '\033[0m'
+    elif cor == 'branco' or cor == 'cinza':
+        return '\033[97m' + texto + '\033[0m'
+    elif cor == 'preto':
+        return '\033[90m' + texto + '\033[0m'
+    else:
+        return texto
 
 #LOOP PRINCIPAL
 def escolha(action):
@@ -384,8 +388,6 @@ def escolha(action):
         inv()
     elif action == "craft":
         craft()
-    elif action == "cl":
-        changeLog()
     else:
         print('')
         fastColorInsert('Comando Inválido.', 'vermelho')

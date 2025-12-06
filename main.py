@@ -40,19 +40,24 @@ critChance = 0
 XP = 0
 XPTotal = 10
 
-enemyName = ''
-enemy = True
-enemyHP, enemyHPTotal = 0, 0
-enemyATK = 0
+#POOL DE INIMIGOS
+#Para cada inimigo, é proporcional ao seu index, exemplo: todos os indexes 0 são atribuidos ao slime, indexes 1 ao zumbi, e assim vai.
+mobs = {
+  "monstBoolean":       True,
+  "monstName":          ["Slime", "Zumbi", "Earth Golem"],
+  "monstHP":            [50, 70, 120],
+  "monstHPTotal":       [50, 70, 120],
+  "monstATK":           [20, 25, 50],
+  "monstLevel":         [0, 1, 2],
+  "monstXPDropRate":    [[5, 10], [10, 25], [25, 75]]
+}
 
-slime = True
-slimeHP, slimeHPTotal = 50, 50
-slimeATK = 20
-zumbi = True
-zumbiHP, zumbiHPTotal = 70, 70
-zumbiATK = 25
-
-#DROPS 
+#DROPS
+drops = {
+    "itemName":         ["Geleia", "Carne Podre", "Rocha Mística"],
+    "itemValue":        [50, 20, 250],
+    "itemRarity":       [0, 0, 1]
+}
 itemGel = 'Geleia'
 itemCarne = 'Carne Podre'
 
@@ -114,45 +119,36 @@ def minerar():
             fastColorInsert('Sua picareta quebrou! Compre outra picareta para continuar minerando.', 'vermelho')
             print('')
 
+def enemyPool(enemyPoolValue):
+    global enemy, enemyHP, enemyATK, enemyHPTotal, enemyName, enemyLevel
+    global mobs
+    enemyName = mobs["monstName"][enemyPoolValue]
+    enemy = mobs["monstBoolean"]
+    enemyHP = mobs["monstHP"][enemyPoolValue]
+    enemyATK = mobs["monstATK"][enemyPoolValue]
+    enemyHPTotal = mobs["monstHPTotal"][enemyPoolValue]
+    enemyLevel = mobs["monstLevel"][0]
+    print('')
+    print(f'\033[91mBATALHA ENCONTRADA!\033[0m: {enemyName} LEVEL: {enemyLevel}')
+    print('')
+    combatSys(enemyPoolValue)
+
 def caçar():
-    global enemy, enemyHP, enemyATK, enemyHPTotal, enemyName
-    global slime, slimeATK, slimeHP, slimeHPTotal
-    global zumbi, zumbiHP, zumbiATK, zumbiHPTotal
-    monstChance = random.randint(0, 1)
+    global monstChance
+    monstChance = random.randint(0,2)
     print('Procurando monstro.')
     time.sleep(0.2)
     print('Procurando monstro..')
     time.sleep(0.2)
     print('Procurando monstro...')
     time.sleep(0.2)
-    if monstChance == 0:
-        print('')
-        print(f'\033[91mBATALHA ENCONTRADA!\033[0m: "SLIME LVL 0"')
-        print('')
-        enemyName = 'slime'
-        enemy = True
-        enemyHP = slimeHP
-        enemyATK = slimeATK
-        enemyHPTotal = slimeHPTotal
-        combatSys()
-    if monstChance == 1:
-        print('')
-        print(f'\033[91mBATALHA ENCONTRADA!\033[0m: "ZUMBI LVL 0"')
-        print('')
-        enemyName = 'zumbi'
-        enemy = True
-        enemyHP = zumbiHP
-        enemyATK = zumbiATK
-        enemyHPTotal = zumbiHPTotal
-        combatSys()
+    enemyPool(monstChance)
 
-def combatSys():
+def combatSys(enemyIndex):
     global dinheiro, level, critChance, itemGel, itemCarne, main, XP
     global enemy, enemyHP, enemyATK, enemyName, enemyHPTotal
-    global slime, slimeATK, slimeHP, slimeHPTotal
     global meuHP, meuDano, meuHPTotal
-    global zumbi, zumbiHP, zumbiATK, zumbiHPTotal
-    while not enemyHP < 0:
+    while enemyHP > 0:
         meuDano = random.randint(40, 50)
         danoInimigo = random.randint(0, enemyATK) # Variável para ser o dano do inimigo num range aleatório de 0 até seu dano MAX.
         atacar = input('Digite "A" para ATACAR: ').lower()
@@ -173,31 +169,27 @@ def combatSys():
             print('-=-=-')
             if meuHP <= 0:
                 main = False
+                meuHP *= (-1)
                 print('VOCÊ MORREU!')
                 break
             if enemyHP <= 0:
                 print('\033[92mVOCÊ VENCEU!\033[0m')
                 dropSys()
-                XPSys()
+                XPSys(enemyIndex)
                 levelUp()
                 enemy = False
                 enemyHPTotal = 0
-                enemyHP = 0
+                enemyHP = 0 
                 enemyName = ''
                 print('')
                 break
 
-def XPSys():
-    global enemyName
+def XPSys(enemyXPValue):
+    global mobs
     global XP
-    XPGanho = random.randint(5, 10)
-    if enemyName == 'zumbi':
-        XP += XPGanho
-        print(f'Você ganhou: {XPGanho} de XP!')
-    elif enemyName == 'slime':
-        XPGanho = random.randint(10, 20)
-        XP += XPGanho
-        print(f'Você ganhou: {XPGanho} de XP!')
+    XPGanho = random.randint(mobs["monstXPDropRate"][enemyXPValue][0], mobs["monstXPDropRate"][enemyXPValue][1])
+    XP += XPGanho
+    print(f'Você ganhou: {XPGanho} de XP!')
 
 def dropSys():
     global inventario, dinheiro
@@ -225,7 +217,7 @@ def inv():
 
 def levelUp():   
     global meuHP, meuHPTotal, XP, XPTotal, level
-    if XP >= XPTotal:
+    while XP >= XPTotal:
         level += 1
         meuHP += 160
         meuHPTotal = meuHP
@@ -395,7 +387,9 @@ def escolha(action):
     elif action == "cl":
         changeLog()
     else:
-        print('\n\033[91mComando inválido.\033[0m')
+        print('')
+        fastColorInsert('Comando Inválido.', 'vermelho')
+        print('')
 
 while main:
     menu()

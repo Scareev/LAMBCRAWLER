@@ -7,28 +7,42 @@ main = True
 
 #RNG 
 chance = 0
-durabilidade = 0
-limite = 5
+
+#SHOP
+
+item_quantity = 4
 
 #RENDA INICIAL
 dinheiro = 0
 
 #PICARETAS
 permitirMinerar = True
-picaretas = ['Picareta de Ferro', 'Picareta de Ouro', 'Picareta de Diamante', 'Picareta de Void']
-picareta_de_ferroPreço = 0
-picareta_de_ouroPreço = 50
-picareta_de_diamantePreço = 350
-picareta_de_voidPreço = 1000
+
+picaretas = {
+    "names":            ['Picareta de Ferro', 'Picareta de Ouro', 'Picareta de Diamante', 'Picareta de Void'],
+    "prices":           [0, 50, 350, 1000],
+    "limits":           [5],
+    "durability":       [0, 35, 65, 250]
+} 
 
 #MINÉRIOS
-ironOre = 0
-goldOre = 0
-diamondOre = 0
-voidOre = 0
+ores = {
+    "iron_ore":         0,
+    "gold_ore":         0,
+    "diamond_ore":      0,
+    "void_ore":         0,
+}
+
+ores_value = {
+    "iron_ore_value":         0,
+    "gold_ore_value":         0,
+    "diamond_ore_value":      0,
+    "void_ore_value":         0,
+}
+
 
 #INVENTÁRIO
-inventario = [picaretas[0]]
+inventario = [picaretas["names"][0]]
 
 #LEVEL-UP
 level = 1
@@ -49,7 +63,8 @@ mobs = {
   "monstHPTotal":       [50, 70, 120],
   "monstATK":           [20, 25, 50],
   "monstLevel":         [0, 1, 2],
-  "monstXPDropRate":    [[5, 10], [10, 25], [25, 75]]
+  "monstXPDropRate":    [[2, 5], [5, 10], [10, 20]],
+  "monstCash":          [[25, 50], [50, 100], [100, 200]]
 }
 
 #DROPS
@@ -58,22 +73,20 @@ drops = {
     "itemValue":        [50, 20, 250],
     "itemRarity":       [0, 0, 1]
 }
-itemGel = 'Geleia'
-itemCarne = 'Carne Podre'
 
 #ITENS CRAFTAVEIS
 craftables = ['Cosmetic', 'Elixir']
 
 
 def minerar():
-    global dinheiro, chance, ironOre, goldOre, diamondOre, voidOre, durabilidade, permitirMinerar
+    global dinheiro, chance, permitirMinerar, picaretas, ores, ores_value
     if permitirMinerar == True:
-        durabilidade += 1
+        picaretas['durability'][0] += 1
         chance = random.randint(1, 100)
-        ironOre = random.randint(2, 5)
-        goldOre = random.randint(10, 30)
-        diamondOre = random.randint(30, 50)
-        voidOre = random.randint(1000, 4000)
+        ores_value['iron_ore_value'] = random.randint(2, 5)
+        ores_value['gold_ore_value'] = random.randint(10, 30)
+        ores_value['diamond_ore_value'] = random.randint(30, 50)
+        ores_value['void_ore_value'] = random.randint(1000, 4000)
         time.sleep(0.1)
         print('Minerando.')
         time.sleep(0.1)
@@ -83,41 +96,39 @@ def minerar():
         time.sleep(0.1)
         print('')
         print('')
-        print('')
-        print('')
-        if durabilidade < limite:
+        if picaretas['durability'][0] <= picaretas['limits'][0]:
             if chance >= 10 and chance <= 50:
-                dinheiro = dinheiro + ironOre
+                dinheiro += ores_value['iron_ore_value']
                 print('')
-                print(f'Você minerou \033[90mFERRO!\033[0m ele vale: {ironOre} moedas.')
+                print('Você minerou ' + fastColorInsert('FERRO!', 'preto') + f' ele vale: {ores_value["iron_ore_value"]} moedas.')
                 print('')
             elif chance >= 40 and chance <= 60:
-                dinheiro = dinheiro + goldOre
+                dinheiro += ores_value['gold_ore_value']
                 print('')
-                print(f'Você minerou \033[93mOURO!\033[0m ele vale: {goldOre} moedas.')
+                print('Você minerou ' + fastColorInsert('OURO!', 'amarelo') + f' ele vale: {ores_value["gold_ore_value"]} moedas.')
                 print('')
             elif chance >= 70 and chance <= 90:
-                dinheiro = dinheiro + diamondOre
+                dinheiro += ores_value['diamond_ore_value']
                 print('')
-                print(f'Você minerou \033[96mDIAMANTE!\033[0m ele vale: {diamondOre} moedas.')
+                print('Você minerou ' + fastColorInsert('DIAMANTE!', 'ciano') + f' ele vale: {ores_value["diamond_ore_value"]} moedas.')
                 print('')
             elif chance >= 91 and chance <= 100:
-                dinheiro = dinheiro + voidOre
+                dinheiro += ores_value['void_ore_value']
                 print('')
-                print(f'Você minerou \033[32m\033[1mO VOID!\033[0m ele vale: {voidOre} moedas.')
+                print('Você minerou ' + fastColorInsert('VOIDITA!', 'verde') + f' ele vale: {ores_value["void_ore_value"]} moedas.')
                 print('')
             else:
                 print('')
-                print(f'Você não achou nada...')
+                print(fastColorInsert(f'Você não achou nada...', 'cinza'))
                 print('')
-            print(f'DURABILIDADE: {durabilidade} de {limite}')
+            print(f'DURABILIDADE: {picaretas['durability'][0]} de {picaretas["limits"][0]}')
         else:
+            print(f'DURABILIDADE: {picaretas['durability'][0]} de {picaretas["limits"][0]}')
+            print('')
+            print(fastColorInsert('Sua picareta quebrou! Compre outra picareta para continuar minerando.', 'vermelho'))
+            print('')
             permitirMinerar = False
             inventario.remove(inventario[0])
-            print(f'DURABILIDADE: {durabilidade} de {limite}')
-            print('')
-            fastColorInsert('Sua picareta quebrou! Compre outra picareta para continuar minerando.', 'vermelho')
-            print('')
 
 def enemyPool(enemyPoolValue):
     global enemy, enemyHP, enemyATK, enemyHPTotal, enemyName, enemyLevel
@@ -129,7 +140,7 @@ def enemyPool(enemyPoolValue):
     enemyHPTotal = mobs["monstHPTotal"][enemyPoolValue]
     enemyLevel = mobs["monstLevel"][0]
     print('')
-    print(f'\033[91mBATALHA ENCONTRADA!\033[0m: {enemyName} LEVEL: {enemyLevel}')
+    print(fastColorInsert(f'BATALHA ENCONTRADA! {enemyName} LEVEL: {enemyLevel}', 'vermelho'))
     print('')
     combatSys(enemyPoolValue)
 
@@ -145,8 +156,8 @@ def caçar():
     enemyPool(monstChance)
 
 def combatSys(enemyIndex):
-    global dinheiro, level, critChance, itemGel, itemCarne, main, XP
-    global enemy, enemyHP, enemyATK, enemyName, enemyHPTotal
+    global dinheiro, level, critChance, main, XP
+    global enemy, enemyHP, enemyATK, enemyHPTotal, enemyName, enemyLevel
     global meuHP, meuDano, meuHPTotal
     while enemyHP > 0:
         meuDano = random.randint(40, 50)
@@ -163,8 +174,7 @@ def combatSys(enemyIndex):
             print('ARGH!!!')
             time.sleep(0.5)
             print('UGH!')
-            print('')
-            
+            print('')     
             print(f'Seu HP atual: {meuHP} / {meuHPTotal} <-- ' + fastColorInsert(danoInimigo, 'vermelho') + ' DANO RECEBIDO')
             print(f'HP do {enemyName}: {enemyHP} / {enemyHPTotal} <-- ' + fastColorInsert(meuDano, 'vermelho') + ' DANO DADO')
             print('-=-=-')
@@ -175,7 +185,7 @@ def combatSys(enemyIndex):
                 break
             if enemyHP <= 0:
                 print('\033[92mVOCÊ VENCEU!\033[0m')
-                dropSys()
+                dropSys(enemyIndex)
                 XPSys(enemyIndex)
                 levelUp()
                 enemy = False
@@ -192,25 +202,16 @@ def XPSys(enemyXPValue):
     XP += XPGanho
     print(f'Você ganhou: {XPGanho} de XP!')
 
-def dropSys():
+def dropSys(enemyDrop):
     global inventario, dinheiro
-    global enemyName
-    global itemCarne, itemGel
-    dinheiroGanho = random.randint(50, 100)
-    if enemyName == 'slime':
-        dinheiro += dinheiroGanho
-        inventario.append(itemGel)
-        print(f'Você ganhou: {itemGel}!')
-        print(f'Você ganhou: {dinheiroGanho} moedas!')
-    elif enemyName == 'zumbi':
-        dinheiroGanho = random.randint(50, 100)
-        dinheiro += dinheiroGanho
-        inventario.append(itemCarne)
-        print(f'Você ganhou: {itemCarne}!')
-        print(f'Você ganhou: {dinheiroGanho} moedas!')
+    global drops, mobs
+    dinheiroGanho = random.randint(mobs['monstCash'][enemyDrop][0], mobs['monstCash'][enemyDrop][1])
+    dinheiro += dinheiroGanho
+    inventario.append(drops['itemName'][enemyDrop])
+    print(f'Você ganhou: {drops['itemName'][enemyDrop]}!')
+    print(f'Você ganhou: {dinheiroGanho} moedas!')
 
 def inv():
-    global itemGel
     print('')
     print('Seus itens:')
     print(inventario)        
@@ -223,70 +224,61 @@ def levelUp():
         meuHP += 160
         meuHPTotal = meuHP
         print('')
-        fastColorInsert('VOCÊ SUBIU DE NÍVEL!', 'verde')
+        print(fastColorInsert('VOCÊ SUBIU DE NÍVEL!', 'verde'))
         print(f'Seu HP Subiu!: {meuHP}')
         print('')
         XP -= XPTotal
-        XPTotal = int(XPTotal * 1.5) # Aumenta o custo do próximo nível em 50%
+        XPTotal = int(XPTotal * 1.5) # Aumenta o custo do próximo nível em 15%
         print(f'XP necessário para o próximo nível: {XPTotal}')
 
 def shop():
-    global dinheiro, lamb, main, inventario, picaretas
+    global dinheiro, lamb, main, inventario, picaretas, item_quantity
     print('')
     print(('-=-' * 5) + 'Loja do Seu Bananal!' + ('-=-' * 5))
-    print(f'SEU DINHEIRO ATUAL: ', end='') # end='' impede o print de pular linha
-    fastColorInsert(f'{dinheiro} MOEDAS.', 'amarelo')
+    print(f'SEU DINHEIRO ATUAL: ', end='')
+    print(fastColorInsert(f'{dinheiro} MOEDAS.', 'amarelo'))
     print('')
     print('Produtos disponiveis:')
-    print('0: LAMB: 4000 MOEDAS') 
-
-    if picaretas[3] not in inventario: # Picareta de Void
-        print(f'1: {picaretas[3]} - 1000 MOEDAS')
-    if picaretas[1] not in inventario: # Picareta de Ouro
-        print(f'2: {picaretas[1]} - 50 MOEDAS') 
-
+    print('0: LAMB: 4000 MOEDAS')
+    if picaretas["names"][1] not in inventario: # Picareta de Ouro
+        print(f'1: {picaretas["names"][1]} - 50 MOEDAS')
+        item_quantity -= 1
+    if picaretas["names"][2] not in inventario: # Picareta de Diamante
+        print(f'2: {picaretas["names"][2]} - 350 MOEDAS') 
+        item_quantity -= 1
+    if picaretas["names"][3] not in inventario: # Picareta de Ouro
+        print(f'3: {picaretas["names"][3]} - 1000 MOEDAS') 
+        item_quantity -= 1
     print('')
-    comprar = input('COMPRAR: ').lower()
+    compra = input('COMPRAR: ').lower()
+    comprar(compra)
 
-    if comprar == "0" and dinheiro >= lamb:
+def comprar(index):
+    global main, dinheiro, lamb
+    if index == 0 and dinheiro >= lamb:
         print('você ZEROU O JOGO!')
         main = False
-    elif comprar == "1" or comprar == "2":
-        comprar_picareta(comprar)
+    elif index:
+        comprar_picareta(index)
     else:
         print('')
-        fastColorInsert('Opção inválida ou dinheiro insuficiente.', 'vermelho')
+        print(fastColorInsert('Opção inválida ou dinheiro insuficiente.', 'vermelho'))
         print('')
 
 def comprar_picareta(id_da_picareta):
-    global dinheiro, limite, permitirMinerar, inventario, picaretas
-
-    #PICARETA DE VOID
-    if id_da_picareta == "1":
-        if picaretas[3] not in inventario:
-            if dinheiro >= 1000:
-                dinheiro -= 1000
-                limite += 100
-                permitirMinerar = True
-                inventario.append(picaretas[3])
-                print(f'\n\033[92mVocê comprou a {picaretas[3]}!\033[0m')
-            else:
-                fastColorInsert('Sem dinheiro.', 'vermelho')
+    global dinheiro, permitirMinerar, inventario, picaretas, picaretas
+    id_da_picareta = int(id_da_picareta)
+    if picaretas['names'][id_da_picareta] not in inventario:
+        if dinheiro >= picaretas['prices'][id_da_picareta]:
+            dinheiro -= picaretas['prices'][id_da_picareta]
+            picaretas['limits'][0] += 100
+            permitirMinerar = True
+            inventario.append(picaretas['names'][id_da_picareta])
+            print(f'\n\033[92mVocê comprou a {picaretas['names'][id_da_picareta]}!\033[0m')
         else:
-            fastColorInsert('Você já possui este item!', 'verde')
- 
-    elif id_da_picareta == "2":
-        if picaretas[1] not in inventario:
-            if dinheiro >= 50:
-                dinheiro -= 50
-                limite += 30
-                permitirMinerar = True
-                inventario.append(picaretas[1])
-                print(f'\n\033[92mVocê comprou a {picaretas[1]}!\033[0m')
-            else:
-                fastColorInsert('Sem dinheiro.', 'vermelho')
-        else:
-            fastColorInsert('Você já possui este item!', 'verde')
+            print(fastColorInsert('Sem dinheiro.', 'vermelho'))
+    else:
+        print(fastColorInsert('Errro!!!!!', 'vermelho'))
 
 def craft():
     global inventario, itemGel, picaretas, craftables
@@ -305,7 +297,7 @@ def craft():
         craftItems(escolha_craft)
     except ValueError:
         print('')
-        fastColorInsert('Comando inválido. Digite apenas o NÚMERO do item. (Ex: 1 ou 2)', 'vermelho')
+        print(fastColorInsert('Comando inválido. Digite apenas o NÚMERO do item. (Ex: 1 ou 2)', 'vermelho'))
         print('')
 
 def craftItemsAppender(index):
@@ -316,7 +308,7 @@ def craftItemsAppender(index):
         print('')
     else:
         print('')
-        fastColorInsert('Item não existe.', 'vermelho')
+        print(fastColorInsert('Item não existe.', 'vermelho'))
         print('')
 
 def craftItems(index):
@@ -333,7 +325,7 @@ def craftItems(index):
         inventario.remove(itemCarne)
     else:
         print('')
-        fastColorInsert('Você não tem os itens necessários!', 'vermelho')
+        print(fastColorInsert('Você não tem os itens necessários!', 'vermelho'))
         print('')
 
 def help():
@@ -344,10 +336,10 @@ def help():
 
 def menu():
     global dinheiro, meuHP, XP, XPTotal
-    print(('-=-' * 5) + 'LambCrawler 1.2.2' + ('-=-' * 5))
-    print(f'SEU DINHEIRO ATUAL: \033[93m{dinheiro}\033[0m')
-    print(f'SEU HP ATUAL: \033[92m {meuHP}\033[0m')
-    print(f'SEU XP ATUAL: \033[96m {XP} / {XPTotal}\033[0m \033[96m(Level {level})\033[0m')
+    print(('-=-' * 5) + 'LambCrawler 1.2.3' + ('-=-' * 5))
+    print(f'SEU DINHEIRO ATUAL: {fastColorInsert(dinheiro, "amarelo")}')
+    print(f'SEU HP ATUAL: {fastColorInsert(meuHP, "verde")}')
+    print(f'SEU XP ATUAL: {fastColorInsert(f"{XP} / {XPTotal}", "ciano")} {fastColorInsert(f"(Level {level})", "ciano")}')
     print('Ações: (m)MINERAR, (c)CAÇAR, (s)SHOP, (h)HELP, (i)INV, (craft)CRAFT')
     print('-=-' * 15)
     escolha(input('AÇÃO: ').lower())

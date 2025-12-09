@@ -1,8 +1,7 @@
 import time
 import random
 
-#LAMB // ZERAR JOGO
-lamb = 4000
+#ZERAR JOGO
 main = True
 
 #RNG 
@@ -10,7 +9,8 @@ chance = 0
 
 #SHOP
 
-item_quantity = 4
+item_quantity = [1, 3]
+craft_quantity = [1, 2]
 
 #RENDA INICIAL
 dinheiro = 0
@@ -42,7 +42,9 @@ ores_value = {
 
 
 #INVENTÁRIO
-inventario = [picaretas["names"][0]]
+inventario = {
+    "items":              [picaretas["names"][0], "Scrap", "Scrap"]
+}
 
 #LEVEL-UP
 level = 1
@@ -51,27 +53,26 @@ level = 1
 meuHP, meuHPTotal = 100, 100
 meuDano = 0
 critChance = 0
-XP = 0
-XPTotal = 10
+XP, XPTotal = 0, 10
 
 #POOL DE INIMIGOS
 #Para cada inimigo, é proporcional ao seu index, exemplo: todos os indexes 0 são atribuidos ao slime, indexes 1 ao zumbi, e assim vai.
 mobs = {
-  "monstBoolean":       True,
-  "monstName":          ["Slime", "Zumbi", "Earth Golem"],
-  "monstHP":            [50, 70, 120],
-  "monstHPTotal":       [50, 70, 120],
-  "monstATK":           [20, 25, 50],
-  "monstLevel":         [0, 1, 2],
-  "monstXPDropRate":    [[2, 5], [5, 10], [10, 20]],
-  "monstCash":          [[25, 50], [50, 100], [100, 200]]
+    "monstBoolean":       True,
+    "monstName":          ["Slime", "Zumbi", "Earth Golem"],
+    "monstHP":            [50, 70, 120],
+    "monstHPTotal":       [50, 70, 120],
+    "monstATK":           [20, 25, 50],
+    "monstLevel":         [0, 1, 2],
+    "monstXPDropRate":    [[2, 5], [5, 10], [10, 20]],
+    "monstCash":          [[25, 50], [50, 100], [100, 200]]
 }
 
 #DROPS
 drops = {
-    "itemName":         ["Geleia", "Carne Podre", "Rocha Mística"],
-    "itemValue":        [50, 20, 250],
-    "itemRarity":       [0, 0, 1]
+    "itemName":           ["Geleia", "Carne Podre", "Rocha Mística"],
+    "itemValue":          [50, 20, 250],
+    "itemRarity":         [0, 0, 1]
 }
 
 #ITENS CRAFTAVEIS
@@ -96,7 +97,7 @@ def minerar():
         time.sleep(0.1)
         print('')
         print('')
-        if picaretas['durability'][0] <= picaretas['limits'][0]:
+        if picaretas['durability'][0] < picaretas['limits'][0]:
             if chance >= 10 and chance <= 50:
                 dinheiro += ores_value['iron_ore_value']
                 print('')
@@ -128,7 +129,7 @@ def minerar():
             print(fastColorInsert('Sua picareta quebrou! Compre outra picareta para continuar minerando.', 'vermelho'))
             print('')
             permitirMinerar = False
-            inventario.remove(inventario[0])
+            inventario['items'].remove(inventario['items'][0])
 
 def enemyPool(enemyPoolValue):
     global enemy, enemyHP, enemyATK, enemyHPTotal, enemyName, enemyLevel
@@ -140,7 +141,7 @@ def enemyPool(enemyPoolValue):
     enemyHPTotal = mobs["monstHPTotal"][enemyPoolValue]
     enemyLevel = mobs["monstLevel"][0]
     print('')
-    print(fastColorInsert(f'BATALHA ENCONTRADA! {enemyName} LEVEL: {enemyLevel}', 'vermelho'))
+    print(fastColorInsert('BATALHA ENCONTRADA! ','vermelho') + f'{enemyName} LEVEL: {enemyLevel}')
     print('')
     combatSys(enemyPoolValue)
 
@@ -207,14 +208,15 @@ def dropSys(enemyDrop):
     global drops, mobs
     dinheiroGanho = random.randint(mobs['monstCash'][enemyDrop][0], mobs['monstCash'][enemyDrop][1])
     dinheiro += dinheiroGanho
-    inventario.append(drops['itemName'][enemyDrop])
+    inventario['items'].append(drops['itemName'][enemyDrop])
     print(f'Você ganhou: {drops['itemName'][enemyDrop]}!')
     print(f'Você ganhou: {dinheiroGanho} moedas!')
 
 def inv():
     print('')
+    print('')
     print('Seus itens:')
-    print(inventario)        
+    print(inventario["items"])        
     print('')
 
 def levelUp():   
@@ -232,58 +234,47 @@ def levelUp():
         print(f'XP necessário para o próximo nível: {XPTotal}')
 
 def shop():
-    global dinheiro, lamb, main, inventario, picaretas, item_quantity
+    global dinheiro, main, inventario, picaretas
     print('')
     print(('-=-' * 5) + 'Loja do Seu Bananal!' + ('-=-' * 5))
     print(f'SEU DINHEIRO ATUAL: ', end='')
     print(fastColorInsert(f'{dinheiro} MOEDAS.', 'amarelo'))
     print('')
-    print('Produtos disponiveis:')
-    print('0: LAMB: 4000 MOEDAS')
-    if picaretas["names"][1] not in inventario: # Picareta de Ouro
-        print(f'1: {picaretas["names"][1]} - 50 MOEDAS')
-        item_quantity -= 1
-    if picaretas["names"][2] not in inventario: # Picareta de Diamante
-        print(f'2: {picaretas["names"][2]} - 350 MOEDAS') 
-        item_quantity -= 1
-    if picaretas["names"][3] not in inventario: # Picareta de Ouro
-        print(f'3: {picaretas["names"][3]} - 1000 MOEDAS') 
-        item_quantity -= 1
+    if picaretas["names"][0] not in inventario: # Picareta de Ouro
+        print(f'1: {picaretas["names"][0]} - 50 MOEDAS')
+    if picaretas["names"][1] not in inventario: # Picareta de Diamante
+        print(f'2: {picaretas["names"][1]} - 350 MOEDAS') 
+    if picaretas["names"][2] not in inventario: # Picareta de Ouro
+        print(f'3: {picaretas["names"][2]} - 1000 MOEDAS') 
     print('')
-    compra = input('COMPRAR: ').lower()
-    comprar(compra)
+    try:
+        compra = int(input('COMPRAR: ').lower())
+        comprar(compra)
+    except ValueError:
+        print('')
+        print(fastColorInsert('Comando errado.', 'vermelho'))
+        print('')
 
 def comprar(index):
-    global main, dinheiro, lamb
-    if index == 0 and dinheiro >= lamb:
-        print('você ZEROU O JOGO!')
-        main = False
-    elif index:
-        comprar_picareta(index)
-    else:
-        print('')
-        print(fastColorInsert('Opção inválida ou dinheiro insuficiente.', 'vermelho'))
-        print('')
-
-def comprar_picareta(id_da_picareta):
-    global dinheiro, permitirMinerar, inventario, picaretas, picaretas
-    id_da_picareta = int(id_da_picareta)
-    if picaretas['names'][id_da_picareta] not in inventario:
-        if dinheiro >= picaretas['prices'][id_da_picareta]:
-            dinheiro -= picaretas['prices'][id_da_picareta]
+    global main, dinheiro, item_quantity, permitirMinerar, inventario, picaretas
+    if index >= item_quantity[0] and index <= item_quantity[-1]:
+        if (picaretas['names'][index] not in inventario) and (dinheiro >= picaretas['prices'][index]):
+            dinheiro -= picaretas['prices'][index]
             picaretas['limits'][0] += 100
             permitirMinerar = True
-            inventario.append(picaretas['names'][id_da_picareta])
-            print(f'\n\033[92mVocê comprou a {picaretas['names'][id_da_picareta]}!\033[0m')
+            inventario['items'].append(picaretas['names'][index])
+            print(fastColorInsert(f'Você comprou a {picaretas['names'][index]}!', 'verde'))
         else:
+            print('')
             print(fastColorInsert('Sem dinheiro.', 'vermelho'))
+            print('')
     else:
-        print(fastColorInsert('Errro!!!!!', 'vermelho'))
+        print('')
+        print(fastColorInsert('Item não existe.', 'vermelho'))
+        print('')
 
-def craft():
-    global inventario, itemGel, picaretas, craftables
-    print('')
-    print('')
+def craftmenu():
+    global inventario, picaretas, craftables
     print('')
     print('')
     print('---' * 10)
@@ -294,49 +285,33 @@ def craft():
     print('---' * 10)
     try:
         escolha_craft = int(input('QUAL ITEM CRAFTAR: '))
-        craftItems(escolha_craft)
+        craft(escolha_craft)
     except ValueError:
         print('')
         print(fastColorInsert('Comando inválido. Digite apenas o NÚMERO do item. (Ex: 1 ou 2)', 'vermelho'))
         print('')
 
-def craftItemsAppender(index):
-    if index >= 0:
-        inventario.append(craftables[index])
+def craft(index):
+    global inventario
+    if index >= craft_quantity[0] and index <= craft_quantity[-1]:
+        inventario['items'].append(craftables[index-1])
         print('')
-        print(f'VOCÊ CRAFTOU: {craftables[index]}!')
+        print(f'VOCÊ CRAFTOU: {craftables[index-1]}!')
         print('')
     else:
         print('')
         print(fastColorInsert('Item não existe.', 'vermelho'))
         print('')
 
-def craftItems(index):
-    global inventario, craftables
-    global picaretas
-    global itemGel, itemCarne
-    if index == 1 and picaretas[1] in inventario and itemGel in inventario:
-        craftItemsAppender(0)
-        inventario.remove(itemGel)
-        inventario.remove(picaretas[1])
-    elif index == 2 and itemCarne in inventario and itemGel in inventario:
-        craftItemsAppender(1)
-        inventario.remove(itemGel)
-        inventario.remove(itemCarne)
-    else:
-        print('')
-        print(fastColorInsert('Você não tem os itens necessários!', 'vermelho'))
-        print('')
-
 def help():
     print('')
-    print('para zerar o jogo, você precisa comprar o LAMB!')
+    print('digite "SAIR" para encerrar o jogo.')
     print('se sua picareta quebrar, você pode comprar mais picaretas para mais durabilidade!')
     print('')
 
 def menu():
     global dinheiro, meuHP, XP, XPTotal
-    print(('-=-' * 5) + 'LambCrawler 1.2.3' + ('-=-' * 5))
+    print(('-=-' * 5) + 'LambCrawler 1.2.3.1' + ('-=-' * 5))
     print(f'SEU DINHEIRO ATUAL: {fastColorInsert(dinheiro, "amarelo")}')
     print(f'SEU HP ATUAL: {fastColorInsert(meuHP, "verde")}')
     print(f'SEU XP ATUAL: {fastColorInsert(f"{XP} / {XPTotal}", "ciano")} {fastColorInsert(f"(Level {level})", "ciano")}')
@@ -368,6 +343,7 @@ def fastColorInsert(texto, cor):
 
 #LOOP PRINCIPAL
 def escolha(action):
+    global main
     if action == "m":
         minerar()
     elif action == "s":
@@ -379,7 +355,12 @@ def escolha(action):
     elif action == "i":
         inv()
     elif action == "craft":
-        craft()
+        craftmenu()
+    elif action == "sair":
+        print('')
+        print('Obrigado por jogar!')
+        print('')
+        main = False
     else:
         print('')
         fastColorInsert('Comando Inválido.', 'vermelho')

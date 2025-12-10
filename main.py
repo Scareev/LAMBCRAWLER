@@ -13,7 +13,7 @@ item_quantity = [1, 3]
 craft_quantity = [1, 2]
 
 #RENDA INICIAL
-dinheiro = 0
+dinheiro = 10000
 
 #PICARETAS
 permitirMinerar = True
@@ -240,12 +240,18 @@ def shop():
     print(f'SEU DINHEIRO ATUAL: ', end='')
     print(fastColorInsert(f'{dinheiro} MOEDAS.', 'amarelo'))
     print('')
-    if picaretas["names"][0] not in inventario: # Picareta de Ouro
-        print(f'1: {picaretas["names"][0]} - 50 MOEDAS')
-    if picaretas["names"][1] not in inventario: # Picareta de Diamante
-        print(f'2: {picaretas["names"][1]} - 350 MOEDAS') 
-    if picaretas["names"][2] not in inventario: # Picareta de Ouro
-        print(f'3: {picaretas["names"][2]} - 1000 MOEDAS') 
+    if picaretas["names"][1] not in inventario['items']: # Picareta de Ouro
+        print(f'1: {picaretas["names"][1]} - 50 MOEDAS') 
+    else:
+        print('Já comprado!')
+    if picaretas["names"][2] not in inventario['items']: # Picareta de Diamante
+        print(f'2: {picaretas["names"][2]} - 350 MOEDAS') 
+    else:
+        print('Já comprado!')
+    if picaretas["names"][3] not in inventario['items']: # Picareta de Ouro
+        print(f'3: {picaretas["names"][3]} - 1000 MOEDAS') 
+    else:
+        print('Já comprado!')
     print('')
     try:
         compra = int(input('COMPRAR: ').lower())
@@ -258,9 +264,9 @@ def shop():
 def comprar(index):
     global main, dinheiro, item_quantity, permitirMinerar, inventario, picaretas
     if index >= item_quantity[0] and index <= item_quantity[-1]:
-        if (picaretas['names'][index] not in inventario) and (dinheiro >= picaretas['prices'][index]):
+        if (picaretas['names'][index] not in inventario['items']) and (dinheiro >= picaretas['prices'][index]):
             dinheiro -= picaretas['prices'][index]
-            picaretas['limits'][0] += 100
+            picaretas['limits'][0] += picaretas['durability'][index]
             permitirMinerar = True
             inventario['items'].append(picaretas['names'][index])
             print(fastColorInsert(f'Você comprou a {picaretas['names'][index]}!', 'verde'))
